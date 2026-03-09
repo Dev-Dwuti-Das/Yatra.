@@ -1,7 +1,5 @@
 # Yatra
 
-https://app.eraser.io/workspace/0vYk9C8nYhhx8B4pwXyt?origin=share
-
 Cloud-ready refactor with clean app separation.
 
 ## Folder Structure
