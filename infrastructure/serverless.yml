@@ -1,15 +1,59 @@
 service: yatra-api
 frameworkVersion: '3'
 
+useDotenv: true
+
+custom:
+  dotenv:
+    path: ../backend/.env
+    include:
+      - NODE_ENV
+      - PORT
+      - MONGODB_URI
+      - JWT_SECRET
+      - JWT_EXPIRES_IN
+      - CLIENT_ORIGIN
+      - UPLOAD_PROVIDER
+      - AWS_S3_BUCKET_NAME
+
 provider:
   name: aws
   runtime: nodejs20.x
-  region: us-east-1
+  region: ${env:AWS_REGION, 'ap-south-1'}
+  stage: ${opt:stage, 'dev'}
+  profile: ${opt:profile, env:AWS_PROFILE, 'default'}
+
+  httpApi:
+    cors: true
+
+  environment:
+    NODE_ENV: ${env:NODE_ENV, 'production'}
+    PORT: ${env:PORT, '4000'}
+    MONGODB_URI: ${param:MONGODB_URI, env:MONGODB_URI, ''}
+    JWT_SECRET: ${param:JWT_SECRET, env:JWT_SECRET, ''}
+    JWT_EXPIRES_IN: ${env:JWT_EXPIRES_IN, '1d'}
+    CLIENT_ORIGIN: ${env:CLIENT_ORIGIN, '*'}
+    UPLOAD_PROVIDER: ${env:UPLOAD_PROVIDER, 'mock'}
+    AWS_S3_BUCKET_NAME: ${env:AWS_S3_BUCKET_NAME, ''}
 
 functions:
   api:
-    handler: ../backend/handler.handler
+    handler: handler.handler
+    memorySize: 1024
+    timeout: 29
     events:
+      - httpApi:
+          path: /
+          method: ANY
       - httpApi:
           path: /{proxy+}
           method: ANY
+
+package:
+  patterns:
+    - handler.js
+    - ../backend/handler.js
+    - ../backend/src/**
+    - ../backend/package.json
+    - ../backend/node_modules/**
+    - '!../backend/.env'

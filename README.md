@@ -8,7 +8,7 @@ Cloud-ready refactor with clean app separation.
 Yatra./
   backend/        # Stateless Express API (JWT, MongoDB)
   frontend/       # React + Vite client
-  legacy-ssr/     # Old EJS + Passport monolith (kept for reference)
+  infrastructure/ # Serverless Framework deployment config
   CLOUD_READY_REFACTOR.md
   README.md
 ```
@@ -40,6 +40,6 @@ Frontend dev URL: `http://localhost:5173`
 
 Use each folder's `.env.example` as template.
 
-## Legacy Code
+## Deployment
 
-Old SSR code was moved to `legacy-ssr/` to keep the root clean while preserving previous implementation.
+Serverless deployment lives in `infrastructure/serverless.yml` and targets the Lambda handler at `backend/handler.js`.

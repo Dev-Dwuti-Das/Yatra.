@@ -9,8 +9,8 @@ import ListingDetailsPage from './pages/ListingDetailsPage';
 
 function App() {
   return (
-    <div className="min-h-screen bg-black text-slate-50">
-      <div className="mx-auto max-w-[1220px] px-4 pb-12 pt-5">
+    <div className="lux-root min-h-screen">
+      <div className="lux-shell mx-auto max-w-[1240px] px-4 pb-12 pt-6 md:px-6">
         <NavBar />
         <main>
           <Routes>

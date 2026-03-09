@@ -12,3 +12,4 @@ router.use('/auth', authRoutes);
 router.use('/listings', listingRoutes);
 
 module.exports = router;
+
