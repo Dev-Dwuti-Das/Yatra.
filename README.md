@@ -2,6 +2,7 @@
 
 Cloud-ready refactor with clean app separation.
 
+![Image](https://github.com/user-attachments/assets/018fea57-b09c-4bda-8d8b-b2a4baa4aacb)
 
 
 
