@@ -12,43 +12,38 @@ Cloud-ready refactor with clean app separation.
 ```mermaid
 flowchart TB
 
-%% Title
-%% Serverless Airbnb Clone – Zero-Cost AWS + MongoDB Atlas (ap-south-1 Mumbai)
-
 subgraph Frontend
     User["User Browser"]
-    S3Frontend["S3: yatra-frontend-static (React/Vite)"]
+    S3Frontend["S3 Frontend: yatra-frontend-static (React/Vite)"]
 end
 
 subgraph "API & Compute"
-    APIGateway["API Gateway\nREST API (prod stage)"]
-    Lambda["Lambda\n yatra-backend-express (Node.js)"]
+    APIGateway["API Gateway REST API (prod stage)"]
+    Lambda["Lambda: yatra-backend-express (Node.js)"]
     CloudWatch["CloudWatch Logs"]
 end
 
 subgraph "Storage & Database"
-    MongoDB["MongoDB Atlas\nAtlas M0 (Listings, Users, Hosts)"]
-    S3Images["S3: yatra-images-2026 (public-read)"]
+    MongoDB["MongoDB Atlas M0 (Listings, Users, Hosts)"]
+    S3Images["S3 Images: yatra-images-2026 (public-read)"]
 end
 
-%% User loads frontend
 User -->|Loads static React app| S3Frontend
 
-%% Frontend to API
-S3Frontend <-->|API calls (Axios + JWT)| APIGateway
-
-%% API Gateway to Lambda
+S3Frontend -->|API calls Axios + JWT| APIGateway
 APIGateway -->|Lambda Proxy Integration| Lambda
 
-%% Lambda connections
-Lambda -->|logs & errors| CloudWatch
-Lambda <-->|Mongoose queries + JWT auth| MongoDB
-Lambda -->|Upload photos (multer + aws-sdk)| S3Images
-S3Images -->|returns public URL| Lambda
-Lambda -->|saves image URLs| MongoDB
+Lambda -->|Logs and errors| CloudWatch
 
-%% Direct browser image loading
-User -->|Direct image load from S3| S3Images
+Lambda -->|Mongoose queries + JWT auth| MongoDB
+MongoDB -->|Query results| Lambda
+
+Lambda -->|Upload photos multer + aws-sdk| S3Images
+S3Images -->|Returns public URL| Lambda
+
+Lambda -->|Save image URL| MongoDB
+
+User -->|Direct image load| S3Images
 ```
 
 ## Folder Structure
