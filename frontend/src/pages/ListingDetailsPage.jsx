@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { fetchListingById } from '../api/listingApi';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
@@ -64,25 +64,63 @@ function ListingDetailsPage() {
     return `https://www.google.com/maps?q=${query}&z=13&output=embed`;
   }, [listing]);
 
+  const averageRating = useMemo(() => {
+    if (!reviews.length) return null;
+    const total = reviews.reduce((sum, item) => sum + Number(item?.rating || 0), 0);
+    return (total / reviews.length).toFixed(1);
+  }, [reviews]);
+  const ratingOptions = [1, 2, 3, 4, 5];
+
   if (loading) return <Loader text="Loading listing details..." />;
   if (error) return <ErrorMessage message={error} />;
   if (!listing) return <p className="no-results">Listing not found.</p>;
 
   return (
-    <section className="details-page">
-      <h1 className="card-title">{listing.title}</h1>
-      <div className="card-details d-flex justify-content-center align-items-center flex-column mt-3">
+    <section className="details-page px-2 md:px-4">
+      <div className="details-topline mb-2">
+        <Link to="/listings" className="details-back-link">
+          <i className="fa-solid fa-arrow-left" /> Back to listings
+        </Link>
+        <div className="details-topline-meta">
+          <span>
+            <i className="fa-solid fa-location-dot" /> {listing.location}, {listing.country}
+          </span>
+          <span>
+            <i className="fa-solid fa-star" /> {averageRating || 'New'} ({reviews.length} reviews)
+          </span>
+        </div>
+      </div>
+
+      <h1 className="card-title text-md text-balance">{listing.title}</h1>
+      <div className="card-details mt-3 flex flex-col items-center justify-center">
         <img src={listing?.image?.url || fallbackImage} className="card-img-top-details" alt="Listing Image" />
 
-        <div className="card-pricing-and-data d-flex align-items-center">
+        <div className="card-pricing-and-data flex items-start">
           <div className="card-body">
-            <h5 className="card-title">Hosted by {listing?.owner?.username || 'Host'}</h5>
-            <hr className="line" />
-            <p>Location : {listing.location}</p>
-            <p className="card-text">About : {listing.description}</p>
-            <p>Country : {listing.country}</p>
+            <h5 className="text-xl md:text-3xl font-bold">Hosted by {listing?.owner?.username || 'Host'}</h5>
+            <p className="card-text mt-2 leading-relaxed text-zinc-300">
+              {listing.description || 'Beautiful stay with excellent comfort and location.'}
+            </p>
+            <div className="details-facts-grid">
+              <div>
+                <span>Price</span>
+                <strong>INR {formatInr(listing.price)} / night</strong>
+              </div>
+              <div>
+                <span>Location</span>
+                <strong>{listing.location || 'Prime Location'}</strong>
+              </div>
+              <div>
+                <span>Country</span>
+                <strong>{listing.country || 'India'}</strong>
+              </div>
+              <div>
+                <span>Rating</span>
+                <strong>{averageRating || 'New listing'}</strong>
+              </div>
+            </div>
             {isOwner && (
-              <div className="details-btns mb-5">
+              <div className="details-btns mt-4 flex flex-wrap gap-2">
                 <button className="btn btn-primary" type="button">
                   Edit
                 </button>
@@ -92,7 +130,7 @@ function ListingDetailsPage() {
               </div>
             )}
           </div>
-          <div className="card-details-booking ms-5 mb-5">
+          <aside className="card-details-booking">
             <b>
               <p>&#8377; {formatInr(listing.price)}/Night</p>
             </b>
@@ -125,15 +163,14 @@ function ListingDetailsPage() {
                 Check availability
               </button>
             </form>
-          </div>
+          </aside>
         </div>
       </div>
 
-      <div className="breathingroom30px mt-3 mb" />
-      <hr className="line mb-3" />
+      <hr className="line mb-4 mt-4" />
 
       {reviews.length > 0 && (
-        <div className="showcomments">
+        <div className="showcomments mt-3">
           <h1>Reviews</h1>
           <div className="row row-cols-1 row-cols-md-2 g-3 mb-5 mt-4">
             {reviews.map((review) => {
@@ -167,56 +204,48 @@ function ListingDetailsPage() {
         </div>
       )}
 
+      {reviews.length === 0 && (
+        <div className="showcomments mt-3">
+          <h1>Reviews</h1>
+          <div className="details-empty-card mt-3 mb-5">
+            No reviews yet. Be the first one to share your experience.
+          </div>
+        </div>
+      )}
+
       <div className="breathingroom mt-3 mb" />
 
       {user && (
-        <div className="postcomment col-12 col-lg-6 offset-lg-3">
-          <div className="review d-flex flex-column">
+        <div className="postcomment col-12 col-lg-8 offset-lg-2">
+          <div className="review details-review-card">
             <h1>Leave a review</h1>
-            <form onSubmit={(e) => e.preventDefault()}>
-              <fieldset className="starability-checkmark mt-2">
-                <input
-                  type="radio"
-                  id="no-rate"
-                  className="input-no-rate"
-                  name="rating"
-                  value="0"
-                  defaultChecked
-                  aria-label="No rating."
-                />
-                <input type="radio" id="first-rate1" name="rating" value="1" />
-                <label htmlFor="first-rate1" title="Terrible">
-                  1 star
-                </label>
-                <input type="radio" id="first-rate2" name="rating" value="2" />
-                <label htmlFor="first-rate2" title="Not good">
-                  2 stars
-                </label>
-                <input type="radio" id="first-rate3" name="rating" value="3" />
-                <label htmlFor="first-rate3" title="Average">
-                  3 stars
-                </label>
-                <input type="radio" id="first-rate4" name="rating" value="4" />
-                <label htmlFor="first-rate4" title="Very good">
-                  4 stars
-                </label>
-                <input type="radio" id="first-rate5" name="rating" value="5" />
-                <label htmlFor="first-rate5" title="Amazing">
-                  5 stars
-                </label>
+            <form className="details-review-form" onSubmit={(e) => e.preventDefault()}>
+              <fieldset className="review-rating-row">
+                <legend className="review-label">Your rating</legend>
+                <input type="radio" id="no-rate" className="sr-only" name="rating" value="0" defaultChecked />
+                <div className="review-rating-options">
+                  {ratingOptions.map((rating) => (
+                    <div key={rating} className="review-rating-item">
+                      <input type="radio" id={`first-rate${rating}`} name="rating" value={rating} className="review-radio" />
+                      <label htmlFor={`first-rate${rating}`} className="review-rating-pill">
+                        {'★'.repeat(rating)} <span>{rating} star{rating > 1 ? 's' : ''}</span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
               </fieldset>
-              <div className="form-floating mb-3">
+
+              <div className="form-floating mb-3 mt-2">
                 <textarea
-                  className="form-control"
-                  placeholder="Leave a comment here"
+                  className="form-control details-review-textarea"
+                  placeholder="Share what you liked, what could be better, and any tips for future guests..."
                   name="review"
                   id="floatingTextarea2"
-                  style={{ width: '700px', height: '200px' }}
                 />
-                <label htmlFor="floatingTextarea2">Review</label>
+                <label htmlFor="floatingTextarea2">Write your review</label>
               </div>
-              <button className="btn btn-primary mb-3" type="submit">
-                Submit
+              <button className="btn btn-primary details-review-submit" type="submit">
+                Submit Review
               </button>
             </form>
           </div>
@@ -225,7 +254,7 @@ function ListingDetailsPage() {
 
       <div className="breathingroom mt-3 mb" />
 
-      <h1>Where you'll be</h1>
+      <h1 className="mt-2">Where you'll be</h1>
       <div className="map">
         <iframe
           title="Listing map"

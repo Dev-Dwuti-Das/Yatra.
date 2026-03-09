@@ -62,6 +62,9 @@ function ListingsPage() {
   const featured = filtered[0] || listings[0];
   const recommended = filtered[1] || listings[1];
   const topFind = filtered[2] || listings[2];
+  const scrollToListings = () => {
+    document.getElementById('listings-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <section className="landing-page">
@@ -108,7 +111,7 @@ function ListingsPage() {
           <div className="hero-main-image-wrap">
             <img className="landing_page_img" src={pic32} alt="Featured villa" />
             <div className="hero-img-title">Exceptional properties around the globe</div>
-            <button className="hero-cta-btn" type="button">
+            <button className="hero-cta-btn" type="button" onClick={scrollToListings}>
               Show Top Rated Villas <i className="fa-solid fa-location-arrow" />
             </button>
           </div>
@@ -122,16 +125,24 @@ function ListingsPage() {
             <div className="hero-secondary-card">
               <img src={getImage(recommended, 1)} alt={recommended?.title || 'Recommended Places'} />
               <div className="hero-secondary-label">Recommended Places</div>
-              <button className="hero-pin-btn" type="button" aria-label="Recommended place">
+              <Link
+                className="hero-pin-btn"
+                to={recommended?._id ? `/listings/${recommended._id}` : '/listings'}
+                aria-label="Open recommended place"
+              >
                 <i className="fa-solid fa-location-dot" />
-              </button>
+              </Link>
             </div>
             <div className="hero-secondary-card">
               <img src={getImage(topFind, 2)} alt={topFind?.title || 'Top Finds'} />
               <div className="hero-secondary-label">Top Finds</div>
-              <button className="hero-pin-btn" type="button" aria-label="Top find">
+              <Link
+                className="hero-pin-btn"
+                to={topFind?._id ? `/listings/${topFind._id}` : '/listings'}
+                aria-label="Open top find"
+              >
                 <i className="fa-solid fa-location-dot" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -160,17 +171,12 @@ function ListingsPage() {
         </h1>
       </div>
 
-      <div className="grid-head">
-        <h2>Exceptional stays</h2>
-        <p>Square-gallery collection of premium villas</p>
-      </div>
-
       {loading && <Loader text="Loading listings..." />}
       <ErrorMessage message={error} />
       {!loading && !error && filtered.length === 0 && <p className="no-results">No listings found.</p>}
 
       {!loading && !error && (
-        <div className="lux-listing-grid">
+        <div className="lux-listing-grid" id="listings-grid">
           {filtered.map((item, index) => (
             <article
               className="listingcard listingcard-animated"
