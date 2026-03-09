@@ -697,6 +697,21 @@ h4,
   font-size: 0.98rem;
 }
 
+.details-edit-form input,
+.details-edit-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--charcoal);
+  padding: 0.68rem 0.8rem;
+}
+
+.details-edit-form input::placeholder,
+.details-edit-form textarea::placeholder {
+  color: var(--muted);
+}
+
 .details-page .card-details-booking {
   width: 360px;
   max-width: 100%;
@@ -741,84 +756,18 @@ h4,
   min-height: 380px;
 }
 
+.availability-result {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: #d4d4d8;
+  font-size: 0.92rem;
+}
+
 .details-review-textarea {
   width: 100% !important;
   min-height: 200px !important;
-}
-
-.details-review-card {
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.02);
-  padding: 1rem;
-}
-
-.details-review-form {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.review-rating-row {
-  border: 0;
-  padding: 0;
-  margin: 0;
-}
-
-.review-label {
-  color: #f4f4f5;
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 0.6rem;
-}
-
-.review-rating-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-}
-
-.review-rating-item .review-radio {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.review-rating-pill {
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.45rem 0.75rem;
-  color: #f5d37b;
-  background: rgba(255, 255, 255, 0.03);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-}
-
-.review-rating-pill span {
-  color: #e4e4e7;
-  font-size: 0.86rem;
-}
-
-.review-rating-pill:hover {
-  transform: translateY(-1px);
-  border-color: rgba(139, 92, 246, 0.7);
-}
-
-.review-radio:checked + .review-rating-pill {
-  border-color: rgba(139, 92, 246, 0.95);
-  background: rgba(139, 92, 246, 0.18);
-}
-
-.details-review-textarea {
-  border-radius: 14px !important;
-}
-
-.details-review-submit {
-  justify-self: start;
-  padding-inline: 1.15rem !important;
-  font-weight: 700 !important;
 }
 
 .btn-primary,

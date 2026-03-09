@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { fetchListings } from '../api/listingApi';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
@@ -14,8 +14,24 @@ const fallbackImages = [
   'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=1400&q=80'
 ];
 
+function isValidImageUrl(url) {
+  if (!url || typeof url !== 'string') return false;
+  return /^(https?:\/\/|data:image\/|blob:|\/)/i.test(url);
+}
+
 function getImage(item, index) {
-  return item?.image?.url || fallbackImages[index % fallbackImages.length];
+  const raw = item?.image?.url;
+  if (isValidImageUrl(raw)) return raw;
+  return fallbackImages[index % fallbackImages.length];
+}
+
+function handleFallbackImage(index) {
+  return (e) => {
+    const fallback = fallbackImages[index % fallbackImages.length];
+    if (e.currentTarget.src !== fallback) {
+      e.currentTarget.src = fallback;
+    }
+  };
 }
 
 function formatInr(value) {
@@ -24,6 +40,7 @@ function formatInr(value) {
 }
 
 function ListingsPage() {
+  const navigate = useNavigate();
   const [listings, setListings] = useState([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -46,24 +63,16 @@ function ListingsPage() {
     load();
   }, []);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return listings;
-
-    return listings.filter((item) => {
-      return (
-        item.title?.toLowerCase().includes(q) ||
-        item.location?.toLowerCase().includes(q) ||
-        item.country?.toLowerCase().includes(q)
-      );
-    });
-  }, [listings, query]);
-
-  const featured = filtered[0] || listings[0];
-  const recommended = filtered[1] || listings[1];
-  const topFind = filtered[2] || listings[2];
+  const featured = listings[0];
+  const recommended = listings[1];
+  const topFind = listings[2];
   const scrollToListings = () => {
     document.getElementById('listings-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const value = query.trim();
+    navigate(value ? `/search?q=${encodeURIComponent(value)}` : '/search');
   };
 
   return (
@@ -91,7 +100,7 @@ function ListingsPage() {
             </div>
           </div>
 
-          <form className="searchbar hero-search-under-stats" role="search" onSubmit={(e) => e.preventDefault()}>
+          <form className="searchbar hero-search-under-stats" role="search" onSubmit={handleSearchSubmit}>
             <input
               className="searchbox"
               type="search"
@@ -123,7 +132,11 @@ function ListingsPage() {
 
           <div className="hero-secondary-grid">
             <div className="hero-secondary-card">
-              <img src={getImage(recommended, 1)} alt={recommended?.title || 'Recommended Places'} />
+              <img
+                src={getImage(recommended, 1)}
+                alt={recommended?.title || 'Recommended Places'}
+                onError={handleFallbackImage(1)}
+              />
               <div className="hero-secondary-label">Recommended Places</div>
               <Link
                 className="hero-pin-btn"
@@ -134,7 +147,7 @@ function ListingsPage() {
               </Link>
             </div>
             <div className="hero-secondary-card">
-              <img src={getImage(topFind, 2)} alt={topFind?.title || 'Top Finds'} />
+              <img src={getImage(topFind, 2)} alt={topFind?.title || 'Top Finds'} onError={handleFallbackImage(2)} />
               <div className="hero-secondary-label">Top Finds</div>
               <Link
                 className="hero-pin-btn"
@@ -173,11 +186,11 @@ function ListingsPage() {
 
       {loading && <Loader text="Loading listings..." />}
       <ErrorMessage message={error} />
-      {!loading && !error && filtered.length === 0 && <p className="no-results">No listings found.</p>}
+      {!loading && !error && listings.length === 0 && <p className="no-results">No listings found.</p>}
 
       {!loading && !error && (
         <div className="lux-listing-grid" id="listings-grid">
-          {filtered.map((item, index) => (
+          {listings.map((item, index) => (
             <article
               className="listingcard listingcard-animated"
               key={item._id}
@@ -185,7 +198,11 @@ function ListingsPage() {
             >
               <Link to={`/listings/${item._id}`} className="listing-link">
                 <div className="listing-image-wrap">
-                  <img src={item?.image?.url || getImage(item, index)} alt={item.title || 'Villa listing'} />
+                  <img
+                    src={getImage(item, index)}
+                    alt={item.title || 'Villa listing'}
+                    onError={handleFallbackImage(index)}
+                  />
                   <span className="listing-price-badge">₹ {formatInr(item.price)}/nights</span>
                 </div>
                 <p className="card-title-text">{item.title}</p>
